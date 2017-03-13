@@ -4,8 +4,8 @@
 
 void passFrisbee(void* arg)
 {
-	printf(0, "Passing frisbee\n");
-	return;
+	printf(0, "whats going on\n");
+	exit();
 }
 
 
@@ -20,8 +20,11 @@ int main(int argc, char *argv[])
 	int numPasses = atoi(argv[2]);
 	printf(0,"Num Threads: %d, Num Passes: %d\n", numThreads, numPasses);
 	
-	thread_create((void*)passFrisbee,0);
+	//int rc = thread_create((void*)passFrisbee,0);
 	
+	//printf(0,"rc = %d\n", rc);
+	
+	//wait();	
 	exit();	
 }
 

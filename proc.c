@@ -189,22 +189,27 @@ clone(void* stack, int size)
 	int i, pid;
 	struct proc *np;
 	// Allocate process
+
 	if((np=allocproc())==0)
 		return -1;
-
+	
 	//Copy process state from p. Child and parent needs to share same address space.
 	np->pgdir = proc->pgdir;
 	np->sz = proc->sz;
-	np->ustack = stack; 
 	np->parent = proc;
+
 	np->isChildT = 1;
+	np->ustack = stack;
+	
 	*np->tf = *proc->tf;
 
-	
+
 	//Force the return for child to be 0
 	np->tf->eax = 0;
-	np->tf->esp = (int)(char*)stack+PGSIZE;
-
+	
+	np->tf->esp = (int)stack+PGSIZE-8;
+	np->tf->ebp = (int)stack+PGSIZE;
+	
 	for(i =0 ; i<NOFILE; i++)
 	{
 		if(proc->ofile[i])
@@ -220,7 +225,7 @@ clone(void* stack, int size)
 	np->state = RUNNABLE;
 	
 	release(&ptable.lock);
-	
+
 	return pid;	
 }
 //cs202
@@ -247,9 +252,9 @@ exit(void)
     }
   }
 
- // begin_op();
+  begin_op();
   iput(proc->cwd);
- // end_op();
+  end_op();
   proc->cwd = 0;
 
   acquire(&ptable.lock);
@@ -257,17 +262,14 @@ exit(void)
   // Parent might be sleeping in wait().
   wakeup1(proc->parent);
   
-  if(!(proc->isChildT))
-  {
   	// Pass abandoned children to init.
-  	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-    		if(p->parent == proc){
-      			p->parent = initproc;
-     			if(p->state == ZOMBIE)
-        		wakeup1(initproc);
-    		}
-  	}
-   }
+	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+		if(p->parent == proc){
+			p->parent = initproc;
+			if(p->state == ZOMBIE)
+			wakeup1(initproc);
+	}
+}
 
   // Jump into the scheduler, never to return.
   proc->state = ZOMBIE;
@@ -296,7 +298,11 @@ wait(void)
         pid = p->pid;
         kfree(p->kstack);
         p->kstack = 0;
+
         freevm(p->pgdir);
+	
+	if(p->pgdir != p->parent->pgdir) //cs202
+		freevm(p->pgdir);	
         p->pid = 0;
         p->parent = 0;
         p->name[0] = 0;
