@@ -198,15 +198,22 @@ clone(void* stack, int size)
 	np->sz = proc->sz;
 	np->parent = proc;
 
-//	np->isChildT = 1;
-//	np->ustack = stack;
 	
 	*np->tf = *proc->tf;
-
-	np->tf->esp = (uint)stack+PGSIZE-12;
-	np->tf->ebp = (uint)stack+PGSIZE-4;
+	//base pointer holds a copy of the initial stack pointer value, we want to know how much we need to clone 
+	//so we calculate how many words apart is current esp and initial esp
+	uint clone_size = *(uint*)proc->tf->ebp - proc->tf->esp;
 	
-//	copyout(np->pgdir, stack	
+	cprintf("clone_size: %d\n", clone_size);
+	//
+	uint ebp_top = *(uint*) proc->tf->ebp - proc->tf->ebp;
+	
+	cprintf("ebp_top: %d\n", ebp_top);	
+	//new stack pointer needs to point to top of stack
+	np->tf->esp = (uint)stack - clone_size;
+	np->tf->ebp = (uint)stack - ebp_top;
+	
+	memmove((void*) np->tf->esp, (const void*) proc->tf->esp, clone_size);
 
 	//Force the return for child to be 0
 	np->tf->eax = 0;

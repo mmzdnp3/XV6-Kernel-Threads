@@ -5,9 +5,27 @@
 #include "x86.h"
 #include "mmu.h"
 
+
+void lock_init(lock_t *lock)
+{
+	lock->locked = 0;
+}
+
+void lock_release(lock_t *lock)
+{
+	asm volatile("movl $0, %0" : "+m" (lock->locked) : );	
+	//lock->locked =0;
+}
+
+void lock_acquire(lock_t *lock)
+{
+	while(xchg(&lock->locked,1) !=0); //consulting xv6's spinlock.c
+}
+
 int thread_create(void*(*start_routine)(void*), void* arg)
 {
 	char* stack = malloc(PGSIZE);
+
 	if(stack == 0)
 	{
 		return -1;
@@ -17,7 +35,7 @@ int thread_create(void*(*start_routine)(void*), void* arg)
 //	{
 //		stack = stack + (PGSIZE - (int)stack % PGSIZE); 	
 //	}
-
+/*
 	printf(0,"before manipulating stack\n");
 	//Store address of argument
 	//char* addressArg;
@@ -44,7 +62,7 @@ int thread_create(void*(*start_routine)(void*), void* arg)
 	printf(0,"ptr is now %p, esp needs to be set to this\n",ptr);
 	
 	printf(0,"Before clone\n");
-	
+*/
 	int id =  clone(stack, PGSIZE);
 	
 	if(id < 0)
@@ -55,14 +73,14 @@ int thread_create(void*(*start_routine)(void*), void* arg)
 	
 	if(id == 0)
 	{
-		printf(0,"This is child thread\n");	
-		//(start_routine)(arg);
+	//	printf(0,"This is child thread\n");	
+		(start_routine)(arg);
 		free(stack);
 		exit();
 	}
 	else
 	{
-		printf(0,"This is parent thread, child thread has pid: %d\n", id);
+	//	printf(0,"This is parent thread, child thread has pid: %d\n", id);
 	}
 
 	return id;	
