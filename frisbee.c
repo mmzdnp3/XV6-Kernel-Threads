@@ -27,9 +27,12 @@ int main(int argc, char *argv[])
 	numPasses = atoi(argv[2]);
 	printf(0,"Num Threads: %d, Num Passes: %d\n", numThreads, numPasses);
 	
-	int rc = thread_create(passFrisbee,0);
-	
-	printf(0,"rc = %d\n", rc);
+	int i,rc;
+	for(i = 0; i < numThreads; i++)
+	{
+		rc = thread_create(passFrisbee,0);
+		printf(0,"rc = %d\n", rc);
+	}
 	
 	wait();	
 	exit();	

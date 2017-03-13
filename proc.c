@@ -204,8 +204,9 @@ clone(void* stack, int size)
 	*np->tf = *proc->tf;
 
 	np->tf->esp = (uint)stack+PGSIZE-12;
-	np->tf->ebp = (uint)stack+PGSIZE;
+	np->tf->ebp = (uint)stack+PGSIZE-4;
 	
+//	copyout(np->pgdir, stack	
 
 	//Force the return for child to be 0
 	np->tf->eax = 0;

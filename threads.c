@@ -13,10 +13,10 @@ int thread_create(void*(*start_routine)(void*), void* arg)
 		return -1;
 	}
 	// Aligning stack on a 4096 boundary
-	if((int) stack % PGSIZE > 0)
-	{
-		stack = stack + (PGSIZE - (int)stack % PGSIZE); 	
-	}
+//	if((int) stack % PGSIZE > 0)
+//	{
+//		stack = stack + (PGSIZE - (int)stack % PGSIZE); 	
+//	}
 
 	printf(0,"before manipulating stack\n");
 	//Store address of argument
@@ -57,7 +57,7 @@ int thread_create(void*(*start_routine)(void*), void* arg)
 	{
 		printf(0,"This is child thread\n");	
 		//(start_routine)(arg);
-		//free(stack);
+		free(stack);
 		exit();
 	}
 	else
