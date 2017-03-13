@@ -2,12 +2,19 @@
 #include "stat.h"
 #include "user.h"
 
-void passFrisbee(void* arg)
+int numPasses;
+
+void* passFrisbee(void* arg)
 {
 	printf(0, "whats going on\n");
 	exit();
 }
 
+void* test(void *arg)
+{
+	printf(0,"why is this happening?\n");
+	exit();
+}
 
 int main(int argc, char *argv[])
 {
@@ -17,14 +24,14 @@ int main(int argc, char *argv[])
 		exit();
 	}
 	int numThreads = atoi(argv[1]);
-	int numPasses = atoi(argv[2]);
+	numPasses = atoi(argv[2]);
 	printf(0,"Num Threads: %d, Num Passes: %d\n", numThreads, numPasses);
 	
-	//int rc = thread_create((void*)passFrisbee,0);
+	int rc = thread_create(passFrisbee,0);
 	
-	//printf(0,"rc = %d\n", rc);
+	printf(0,"rc = %d\n", rc);
 	
-	//wait();	
+	wait();	
 	exit();	
 }
 

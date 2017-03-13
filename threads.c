@@ -7,7 +7,7 @@
 
 int thread_create(void*(*start_routine)(void*), void* arg)
 {
-	char* stack = malloc(PGSIZE*2);
+	char* stack = malloc(PGSIZE);
 	if(stack == 0)
 	{
 		return -1;
@@ -17,7 +17,7 @@ int thread_create(void*(*start_routine)(void*), void* arg)
 	{
 		stack = stack + (PGSIZE - (int)stack % PGSIZE); 	
 	}
-/*
+
 	printf(0,"before manipulating stack\n");
 	//Store address of argument
 	//char* addressArg;
@@ -33,18 +33,19 @@ int thread_create(void*(*start_routine)(void*), void* arg)
 
 	if(arg ==0)
 	{
-		*ptr = null;
 		ptr -=4;
-		printf(0,"Before setting argc\n");
+		//printf(0,"Before setting argc\n");
 		*ptr = argc;
 		ptr -=4;
-		printf(0,"Before setting fake return addess\n");
+		//printf(0,"Before setting fake return addess\n");
 		*ptr =(int)0xFFFFFFFF; 
 	}	
 	
+	printf(0,"ptr is now %p, esp needs to be set to this\n",ptr);
+	
 	printf(0,"Before clone\n");
-*/	
-	int id = clone(stack, PGSIZE);
+	
+	int id =  clone(stack, PGSIZE);
 	
 	if(id < 0)
 	{

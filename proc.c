@@ -100,7 +100,7 @@ userinit(void)
   p->tf->esp = PGSIZE;
   p->tf->eip = 0;  // beginning of initcode.S
 
-  p->isChildT = 0;  //cs202
+  //p->isChildT = 0;  //cs202
 
   safestrcpy(p->name, "initcode", sizeof(p->name));
   p->cwd = namei("/");
@@ -198,17 +198,17 @@ clone(void* stack, int size)
 	np->sz = proc->sz;
 	np->parent = proc;
 
-	np->isChildT = 1;
-	np->ustack = stack;
+//	np->isChildT = 1;
+//	np->ustack = stack;
 	
 	*np->tf = *proc->tf;
 
+	np->tf->esp = (uint)stack+PGSIZE-12;
+	np->tf->ebp = (uint)stack+PGSIZE;
+	
 
 	//Force the return for child to be 0
 	np->tf->eax = 0;
-	
-	np->tf->esp = (int)stack+PGSIZE-8;
-	np->tf->ebp = (int)stack+PGSIZE;
 	
 	for(i =0 ; i<NOFILE; i++)
 	{
@@ -245,11 +245,14 @@ exit(void)
     panic("init exiting");
 
   // Close all open files.
-  for(fd = 0; fd < NOFILE; fd++){
-    if(proc->ofile[fd]){
-      fileclose(proc->ofile[fd]);
-      proc->ofile[fd] = 0;
-    }
+  if(proc->pgdir != proc->parent->pgdir)         //cs202
+  {
+  	for(fd = 0; fd < NOFILE; fd++){
+    		if(proc->ofile[fd]){
+      			fileclose(proc->ofile[fd]);
+      			proc->ofile[fd] = 0;
+    		}
+ 	}
   }
 
   begin_op();
@@ -262,14 +265,14 @@ exit(void)
   // Parent might be sleeping in wait().
   wakeup1(proc->parent);
   
-  	// Pass abandoned children to init.
-	for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
-		if(p->parent == proc){
-			p->parent = initproc;
-			if(p->state == ZOMBIE)
-			wakeup1(initproc);
-	}
-}
+  // Pass abandoned children to init.
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
+    if(p->parent == proc){
+      p->parent = initproc;
+      if(p->state == ZOMBIE)
+        wakeup1(initproc);
+    }
+  }
 
   // Jump into the scheduler, never to return.
   proc->state = ZOMBIE;
@@ -299,7 +302,6 @@ wait(void)
         kfree(p->kstack);
         p->kstack = 0;
 
-        freevm(p->pgdir);
 	
 	if(p->pgdir != p->parent->pgdir) //cs202
 		freevm(p->pgdir);	
