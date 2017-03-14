@@ -130,6 +130,19 @@ xchg(volatile uint *addr, uint newval)
   return result;
 }
 
+//cs202 NEED AN ATOMIC FETCH AND ADD
+  static inline int fetch_and_add(int* variable, int value)
+  {
+      asm volatile("lock; xaddl %0, %1"
+        : "+r" (value), "+m" (*variable) // input+output
+        : // No input-only
+        : "memory"
+      );
+      return value;
+  }
+//cs202	Implementation taken from https://en.wikipedia.org/wiki/Fetch-and-add#x86_implementation
+
+
 static inline uint
 rcr2(void)
 {

@@ -2,27 +2,31 @@
 #include "stat.h"
 #include "user.h"
 
+
 int numPasses;
 int numThreads;
 int currPass = 1;
 int holder = 0;
-lock_t lock;
+
+arraylock_t lock;
 
 void passFrisbee(void* arg)
 {
 	int threadnumber = *(int*)arg;
+	int my_place;
 	for(;;)
 	{	
-	//	sleep(100);
-		lock_acquire(&lock);
+		//sleep(100);
+		//printf(0,"\n\nThread %d acquiring lock\n\n", threadnumber);
+		arraylock_acquire(&lock, &my_place, threadnumber);
 		if(numPasses <= 0)
 		{
-			lock_release(&lock);
+			arraylock_release(&lock, &my_place);
 			break;
 		}
 		if(holder != threadnumber)
 		{
-			lock_release(&lock);
+			arraylock_release(&lock, &my_place);
 			continue;
 		}
 		
@@ -34,7 +38,7 @@ void passFrisbee(void* arg)
 		printf(0, "Pass number no. %d, Thread %d is passing the token to %d\n", currPass, threadnumber, holder);
 		numPasses--;
 		currPass++;
-		lock_release(&lock);
+		arraylock_release(&lock, &my_place);
 	}
 	return;
 }
@@ -50,16 +54,15 @@ int main(int argc, char *argv[])
 	numPasses = atoi(argv[2]);
 	printf(0,"Num Threads: %d, Num Passes: %d\n", numThreads, numPasses);
 
-	lock_init(&lock);
+	arraylock_init(&lock, numThreads);
+	
 	int i,rc;
 
 	for(i = 0; i < numThreads; i++)
 	{
 		int * t = malloc(sizeof(*t));
 		*t = i; 
-//		printf(0,"t = %d\n", *t);
 		rc = thread_create((void*)passFrisbee,(void*)t);
-//		printf(0,"rc = %d\n", rc);
 	}
 	for(i = 0; i < numThreads; i++)
 	{

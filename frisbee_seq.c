@@ -57,9 +57,9 @@ int main(int argc, char *argv[])
 	{
 		int * t = malloc(sizeof(*t));
 		*t = i; 
-//		printf(0,"t = %d\n", *t);
+		printf(0,"t = %d\n", *t);
 		rc = thread_create((void*)passFrisbee,(void*)t);
-//		printf(0,"rc = %d\n", rc);
+		printf(0,"rc = %d\n", rc);
 	}
 	for(i = 0; i < numThreads; i++)
 	{

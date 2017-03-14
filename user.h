@@ -1,10 +1,20 @@
 struct stat;
 struct rtcdate;
 
+//cs202
+#define MAX_THREADS 200
 typedef struct
 {
 	uint locked;
 }lock_t;
+
+typedef struct
+{
+	int n;			//num of threads
+	int queuelast;
+	int flags[MAX_THREADS];
+}arraylock_t;
+//cs202
 
 // system calls
 int fork(void);
@@ -47,3 +57,8 @@ int thread_create(void*(void*),void *arg);	//cs202
 void lock_init(lock_t *);	//cs202
 void lock_release(lock_t *);	//cs202
 void lock_acquire(lock_t *);	//cs202
+void arraylock_init(arraylock_t *, int);		//cs202
+void arraylock_acquire(arraylock_t *, int*, int);	//cs202
+void arraylock_release(arraylock_t *, int*);	//cs202
+
+

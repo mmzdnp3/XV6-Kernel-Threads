@@ -5,7 +5,7 @@
 #include "x86.h"
 #include "mmu.h"
 
-
+//spin lock
 void lock_init(lock_t *lock)
 {
 	lock->locked = 0;
@@ -22,19 +22,23 @@ void lock_acquire(lock_t *lock)
 	while(xchg(&lock->locked,1) !=0); //consulting xv6's spinlock.c
 }
 
+
+
+
 int thread_create(void*(*start_routine)(void*), void* arg)
 {
 	char* stack = malloc(PGSIZE);
-
+	//char* temp = malloc(100);
+	//char* temp = stack + PGSIZE+4;
+	//*temp = 'a';
+	
+//	printf(0,"Allocated stack, currently pointing at: %p\n",(void*) stack);
+	//printf(0,"temp is currently pointed at: %p\n",(void*) temp);
+	//free(temp);	
 	if(stack == 0)
 	{
 		return -1;
 	}
-	// Aligning stack on a 4096 boundary
-//	if((int) stack % PGSIZE > 0)
-//	{
-//		stack = stack + (PGSIZE - (int)stack % PGSIZE); 	
-//	}
 /*
 	printf(0,"before manipulating stack\n");
 	//Store address of argument
@@ -75,6 +79,14 @@ int thread_create(void*(*start_routine)(void*), void* arg)
 	{
 	//	printf(0,"This is child thread\n");	
 		(start_routine)(arg);
+
+	//	int j;
+	//	for(j = 60; j < 120; j++)
+	//	{
+	//		printf(0,"%d\n", *(stack-j));
+	//	}
+		
+		printf(0,"Freeing stack at address: %p\n",(void*) stack);
 		free(stack);
 		exit();
 	}

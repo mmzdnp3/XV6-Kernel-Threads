@@ -200,18 +200,19 @@ clone(void* stack, int size)
 
 	
 	*np->tf = *proc->tf;
-	//base pointer holds a copy of the initial stack pointer value, we want to know how much we need to clone 
-	//so we calculate how many words apart is current esp and initial esp
+	//base pointer holds a copy of old %ebp which is the top of proc's stack, we want to know 
+	//how much we need to clone so we calculate how many far apart is current parent esp 
+	//and old base pointer to get all the variables of parent
 	uint clone_size = *(uint*)proc->tf->ebp - proc->tf->esp;
 	
-	cprintf("clone_size: %d\n", clone_size);
-	//
-	uint ebp_top = *(uint*) proc->tf->ebp - proc->tf->ebp;
+//	cprintf("clone_size: %d\n", clone_size);
+	//need to adjust reference to the stack frame as well
+	uint delta_ebp = *(uint*) proc->tf->ebp - proc->tf->ebp;
 	
-	cprintf("ebp_top: %d\n", ebp_top);	
-	//new stack pointer needs to point to top of stack
-	np->tf->esp = (uint)stack - clone_size;
-	np->tf->ebp = (uint)stack - ebp_top;
+	//new stack pointer needs to point to top of our new stack 
+	//to make sure new child is running on this stack when we return
+	np->tf->esp = (uint)stack + size - clone_size;
+	np->tf->ebp = (uint)stack + size - delta_ebp;
 	
 	memmove((void*) np->tf->esp, (const void*) proc->tf->esp, clone_size);
 
@@ -221,7 +222,7 @@ clone(void* stack, int size)
 	for(i =0 ; i<NOFILE; i++)
 	{
 		if(proc->ofile[i])
-			np->ofile[i] = proc->ofile[i];
+			np->ofile[i] = proc->ofile[i]; //do not duplicate file descriptors
 	}
 	np->cwd = idup(proc->cwd);
 
@@ -229,9 +230,7 @@ clone(void* stack, int size)
 	pid = np->pid;
 	
 	acquire(&ptable.lock);
-	
 	np->state = RUNNABLE;
-	
 	release(&ptable.lock);
 
 	return pid;	
@@ -312,7 +311,7 @@ wait(void)
 
 	
 	if(p->pgdir != p->parent->pgdir) //cs202
-		freevm(p->pgdir);	
+		freevm(p->pgdir);	//only free address space if parent	
         p->pid = 0;
         p->parent = 0;
         p->name[0] = 0;
