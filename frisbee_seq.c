@@ -17,6 +17,24 @@ void passFrisbee(void* arg)
 	{
 		//printf(0,"Thread %d from the top\n", threadnumber);	
 		int check, skip, break_;	
+
+		do
+		{
+			check = sequenceNum;
+			break_ = 0;
+			if(numPasses <= 0)
+			{
+				break_ = 1;
+			}
+		//	if(check != sequenceNum)
+		//	{
+		//		printf(0,"c:%d, s:%d\n", check, sequenceNum);
+		//	}
+		}while(check != sequenceNum);	
+		if(break_ == 1)
+		{
+			break;		
+		}
 		do
 		{
 			check = sequenceNum;
@@ -26,35 +44,16 @@ void passFrisbee(void* arg)
 			{
 				skip = 1;			
 			}
-			if(check != sequenceNum)
-			{
-				printf(0,"c:%d, s:%d\n", check, sequenceNum);
-			}
+		//	if(check != sequenceNum)
+		//	{
+		//		printf(0,"c:%d, s:%d\n", check, sequenceNum);
+		//	}
 		}while(check != sequenceNum);
-		
-		do
-		{
-			check = sequenceNum;
-			break_ = 0;
-			if(numPasses <= 0)
-			{
-				break_ = 1;
-			}
-			if(check != sequenceNum)
-			{
-				printf(0,"c:%d, s:%d\n", check, sequenceNum);
-			}
-		}while(check != sequenceNum);
-		if(break_ == 1)
-		{
-			break;
-		}	
 		if(skip == 1)
-		{
+		{	
 			sleep(1);
-			continue;		
-		}
-
+			continue;
+		}	
 //		printf(0,"Thread %d trying to acquire, holder is %d\n", threadnumber, holder);
 				
 		seqlock_acquire(&lock, &sequenceNum);
