@@ -8,24 +8,43 @@ int currPass = 1;
 int holder = 0;
 lock_t lock;
 
+int sequenceNum = 0;
+
 void passFrisbee(void* arg)
 {
 	int threadnumber = *(int*)arg;
 	for(;;)
 	{	
 	//	sleep(100);
-		lock_acquire(&lock);
-		if(numPasses <= 0)
+		int check, skip, break_;	
+		do
 		{
-			lock_release(&lock);
-			break;
-		}
-		if(holder != threadnumber)
-		{
-			lock_release(&lock);
-			continue;
-		}
+			check = sequenceNum;
+			skip = 0;
+			break_ = 0;
+			if(numPasses <= 0)
+			{
+				break_ = 1;
+			}
+			if(holder != threadnumber)
+			{
+				skip = 1;
+			
+			}
+			sleep(1);
+//			printf(0,"c:%d, s:%d\n", check, sequenceNum);
+		}while(check != sequenceNum);
 		
+		if(break_ == 1)
+		{
+			break;
+		}	
+		if(skip == 1)
+		{
+			continue;		
+		}
+			
+		seqlock_acquire(&lock, &sequenceNum);
 		holder++;
 		if(holder == numThreads)
 		{
@@ -34,7 +53,7 @@ void passFrisbee(void* arg)
 		printf(0, "Pass number no. %d, Thread %d is passing the token to %d\n", currPass, threadnumber, holder);
 		numPasses--;
 		currPass++;
-		lock_release(&lock);
+		seqlock_release(&lock, &sequenceNum);
 	}
 	return;
 }
@@ -57,9 +76,9 @@ int main(int argc, char *argv[])
 	{
 		int * t = malloc(sizeof(*t));
 		*t = i; 
-		printf(0,"t = %d\n", *t);
+	//	printf(0,"t = %d\n", *t);
 		rc = thread_create((void*)passFrisbee,(void*)t);
-		printf(0,"rc = %d\n", rc);
+	//	printf(0,"rc = %d\n", rc);
 	}
 	for(i = 0; i < numThreads; i++)
 	{

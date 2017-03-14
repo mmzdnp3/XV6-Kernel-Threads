@@ -203,16 +203,16 @@ clone(void* stack, int size)
 	//base pointer holds a copy of old %ebp which is the top of proc's stack, we want to know 
 	//how much we need to clone so we calculate how many far apart is current parent esp 
 	//and old base pointer to get all the variables of parent
-	uint clone_size = *(uint*)proc->tf->ebp - proc->tf->esp;
+	int clone_size = *(int*)proc->tf->ebp - proc->tf->esp;
 	
 //	cprintf("clone_size: %d\n", clone_size);
 	//need to adjust reference to the stack frame as well
-	uint delta_ebp = *(uint*) proc->tf->ebp - proc->tf->ebp;
+	int delta_ebp = *(int*)proc->tf->ebp - proc->tf->ebp;
 	
 	//new stack pointer needs to point to top of our new stack 
 	//to make sure new child is running on this stack when we return
-	np->tf->esp = (uint)stack + size - clone_size;
-	np->tf->ebp = (uint)stack + size - delta_ebp;
+	np->tf->esp = (int)stack + size - clone_size;
+	np->tf->ebp = (int)stack + size - delta_ebp;
 	
 	memmove((void*) np->tf->esp, (const void*) proc->tf->esp, clone_size);
 

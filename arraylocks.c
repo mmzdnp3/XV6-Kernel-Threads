@@ -17,7 +17,7 @@ void arraylock_init(arraylock_t *lock, int numThreads)
 	lock->flags[0] = 1;
 }
 
-void arraylock_acquire(arraylock_t *lock, int *my_place, int threadnum)
+void arraylock_acquire(arraylock_t *lock, int *my_place)
 {
 	*my_place = fetch_and_add(&(lock->queuelast), 1);//check x86.h
 	

@@ -58,7 +58,8 @@ void lock_init(lock_t *);	//cs202
 void lock_release(lock_t *);	//cs202
 void lock_acquire(lock_t *);	//cs202
 void arraylock_init(arraylock_t *, int);		//cs202
-void arraylock_acquire(arraylock_t *, int*, int);	//cs202
+void arraylock_acquire(arraylock_t *, int*);	//cs202
 void arraylock_release(arraylock_t *, int*);	//cs202
-
+void seqlock_acquire(lock_t *, int*);		//cs202
+void seqlock_release(lock_t *, int*);		//cs202
 
