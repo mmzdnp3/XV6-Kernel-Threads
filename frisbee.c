@@ -13,7 +13,6 @@ void passFrisbee(void* arg)
 	int threadnumber = *(int*)arg;
 	for(;;)
 	{	
-	//	sleep(100);
 		lock_acquire(&lock);
 		if(numPasses <= 0)
 		{

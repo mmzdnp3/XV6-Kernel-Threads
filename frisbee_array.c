@@ -16,7 +16,6 @@ void passFrisbee(void* arg)
 	int my_place;
 	for(;;)
 	{	
-		//sleep(100);
 		//printf(0,"\n\nThread %d acquiring lock\n\n", threadnumber);
 		arraylock_acquire(&lock, &my_place);
 		if(numPasses <= 0)

@@ -14,37 +14,53 @@ void passFrisbee(void* arg)
 {
 	int threadnumber = *(int*)arg;
 	for(;;)
-	{	
-	//	sleep(100);
+	{
+		//printf(0,"Thread %d from the top\n", threadnumber);	
 		int check, skip, break_;	
 		do
 		{
 			check = sequenceNum;
 			skip = 0;
+
+			if(holder != threadnumber)
+			{
+				skip = 1;			
+			}
+			if(check != sequenceNum)
+			{
+				printf(0,"c:%d, s:%d\n", check, sequenceNum);
+			}
+		}while(check != sequenceNum);
+		
+		do
+		{
+			check = sequenceNum;
 			break_ = 0;
 			if(numPasses <= 0)
 			{
 				break_ = 1;
 			}
-			if(holder != threadnumber)
+			if(check != sequenceNum)
 			{
-				skip = 1;
-			
+				printf(0,"c:%d, s:%d\n", check, sequenceNum);
 			}
-			sleep(1);
-//			printf(0,"c:%d, s:%d\n", check, sequenceNum);
 		}while(check != sequenceNum);
-		
 		if(break_ == 1)
 		{
 			break;
 		}	
 		if(skip == 1)
 		{
+			sleep(1);
 			continue;		
 		}
-			
+
+//		printf(0,"Thread %d trying to acquire, holder is %d\n", threadnumber, holder);
+				
 		seqlock_acquire(&lock, &sequenceNum);
+		
+//		printf(0,"thread %d acquired lock\n", threadnumber);
+			
 		holder++;
 		if(holder == numThreads)
 		{
@@ -54,6 +70,9 @@ void passFrisbee(void* arg)
 		numPasses--;
 		currPass++;
 		seqlock_release(&lock, &sequenceNum);
+		
+//		printf(0,"Thread %d released \n",threadnumber);		
+
 	}
 	return;
 }
@@ -68,7 +87,6 @@ int main(int argc, char *argv[])
 	numThreads = atoi(argv[1]);
 	numPasses = atoi(argv[2]);
 	printf(0,"Num Threads: %d, Num Passes: %d\n", numThreads, numPasses);
-
 	lock_init(&lock);
 	int i,rc;
 
@@ -80,6 +98,11 @@ int main(int argc, char *argv[])
 		rc = thread_create((void*)passFrisbee,(void*)t);
 	//	printf(0,"rc = %d\n", rc);
 	}
+	
+//	sleep(500);
+	
+//	printf(0,"lock->locked: %d\n", lock.locked);
+
 	for(i = 0; i < numThreads; i++)
 	{
 		wait();
