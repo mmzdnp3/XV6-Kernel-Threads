@@ -101,11 +101,11 @@ int main(int argc, char *argv[])
 //	sleep(500);
 	
 //	printf(0,"lock->locked: %d\n", lock.locked);
-
 	for(i = 0; i < numThreads; i++)
 	{
 		wait();
 	}	
+	printf(0,"Simulation of frisbee game has finished, %d rounds were played in total!\n", currPass-1);
 	exit();	
 }
 

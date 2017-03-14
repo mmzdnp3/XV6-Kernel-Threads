@@ -86,7 +86,7 @@ int thread_create(void*(*start_routine)(void*), void* arg)
 	//		printf(0,"%d\n", *(stack-j));
 	//	}
 		
-		printf(0,"Freeing stack at address: %p\n",(void*) stack);
+	//	printf(0,"Freeing stack at address: %p\n",(void*) stack);
 		free(stack);
 		exit();
 	}

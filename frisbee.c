@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
 	{
 		wait();
 	}	
+	printf(0,"Simulation of frisbee game has finished, %d rounds were played in total!\n", currPass-1);
 	exit();	
 }
 
